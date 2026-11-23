@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="hy">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>Secret Santa — Գաղտնի Սանտա</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@400;600;800;900&family=Noto+Serif+Armenian:wght@700;900&display=swap" rel="stylesheet" />
+    <style>
+      button, [role="button"], a.btn { min-height: 2.75rem; }
+
+      :root {
+        --bg: #0a2016;
+        --bg-deep: #06160f;
+        --panel: #0f2c1e;
+        --panel-edge: #1d4a32;
+        --cream: #faf4e0;
+        --cream-dim: #d9d2b8;
+        --gold: #d4af37;
+        --gold-light: #f0d678;
+        --gold-dark: #8a6d1f;
+        --red: #c63031;
+        --red-bright: #e0483e;
+        --green-tree: #2e7d4f;
+        --ink-on-gold: #4a3608;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: "Noto Sans Armenian", "Segoe UI", system-ui, sans-serif;
+        background:
+          radial-gradient(1100px 500px at 50% -120px, #17452c 0%, transparent 60%),
+          linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+        background-attachment: fixed;
+        color: var(--cream);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      #snow {
+        position: fixed; inset: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 50;
+      }
+
+      #confetti {
+        position: fixed; inset: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 60;
+      }
+
+      .wrap {
+        position: relative; z-index: 1;
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+      }
+
+      /* ---------- Header ---------- */
+      header { text-align: center; padding-top: 10px; }
+      .kicker {
+        letter-spacing: .42em;
+        font-weight: 800;
+        font-size: .8rem;
+        color: var(--gold-light);
+        text-transform: uppercase;
+        margin: 0 0 10px;
+        text-indent: .42em;
+      }
+      h1 {
+        font-family: "Noto Serif Armenian", "Noto Sans Armenian", serif;
+        font-weight: 900;
+        font-size: clamp(2.4rem, 9vw, 3.6rem);
+        line-height: 1.08;
+        margin: 0 0 14px;
+        color: var(--cream);
+      }
+      .greeting {
+        margin: 0 auto;
+        max-width: 46ch;
+        font-size: 1.05rem;
+        line-height: 1.65;
+        color: var(--cream-dim);
+      }
+      .divider {
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        margin: 22px auto 4px;
+      }
+      .divider .line { height: 2px; width: 74px; background: var(--gold); opacity: .85; }
+      .divider .diamond {
+        width: 11px; height: 11px; background: var(--red-bright);
+        transform: rotate(45deg);
+      }
+
+      .scene { display: block; margin: 14px auto 0; max-width: 520px; width: 100%; height: auto; }
+
+      /* ---------- Sections ---------- */
+      section { margin-top: 40px; }
+      h2 {
+        font-family: "Noto Serif Armenian", "Noto Sans Armenian", serif;
+        font-size: clamp(1.45rem, 5.5vw, 1.9rem);
+        font-weight: 900;
+        margin: 0 0 8px;
+        text-align: center;
+      }
+      .section-sub {
+        text-align: center;
+        color: var(--cream-dim);
+        margin: 0 auto 20px;
+        max-width: 48ch;
+        line-height: 1.6;
+        font-size: .98rem;
+      }
+
+      /* ---------- Scratch card ---------- */
+      .scratch-shell {
+        background: var(--panel);
+        border: 1px solid var(--panel-edge);
+        border-radius: 20px;
+        padding: 14px;
+        box-shadow: 0 24px 50px rgba(0,0,0,.45);
+      }
+      .scratch-box {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        aspect-ratio: 4 / 3;
+        background:
+          radial-gradient(600px 300px at 50% 0%, #ffe9a8 0%, transparent 55%),
+          linear-gradient(160deg, #fdf6d8 0%, #f3e3ae 55%, #ecd28c 100%);
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .scratch-under {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        text-align: center;
+        padding: 20px;
+        color: #3d2c05;
+      }
+      .scratch-under .who-label {
+        font-size: .95rem; font-weight: 600;
+        letter-spacing: .06em;
+        color: #7a5c14;
+        margin: 0 0 6px;
+      }
+      .scratch-under .who-name {
+        font-family: "Noto Serif Armenian", "Noto Sans Armenian", serif;
+        font-weight: 900;
+        font-size: clamp(2.6rem, 13vw, 4.2rem);
+        line-height: 1.05;
+        margin: 0;
+        color: #59390a;
+      }
+      .scratch-under .who-note {
+        margin: 10px 0 0;
+        font-size: .95rem;
+        color: #7a5c14;
+        max-width: 34ch;
+        line-height: 1.55;
+      }
+      #scratchCanvas {
+        position: absolute; inset: 0;
+        width: 100%; height: 100%;
+        touch-action: none;
+        cursor: pointer;
+        transition: opacity .7s ease;
+      }
+      #scratchCanvas.gone { opacity: 0; pointer-events: none; }
+
+      .scratch-status {
+        text-align: center;
+        margin: 16px 0 0;
+        min-height: 1.5em;
+        font-weight: 600;
+        color: var(--gold-light);
+      }
+      .scratch-actions { display: flex; justify-content: center; margin-top: 10px; }
+
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        font-family: inherit;
+        font-size: 1rem; font-weight: 700;
+        color: #231a02;
+        background: linear-gradient(180deg, var(--gold-light), var(--gold));
+        border: 1px solid var(--gold-dark);
+        border-radius: 999px;
+        padding: 10px 22px;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 6px 18px rgba(0,0,0,.35);
+      }
+      .btn:active { transform: translateY(1px); }
+      .btn.ghost {
+        background: transparent;
+        color: var(--gold-light);
+        border: 1px solid var(--gold);
+        box-shadow: none;
+      }
+      [hidden] { display: none !important; }
+
+      footer {
+        margin-top: 44px;
+        text-align: center;
+        color: var(--cream-dim);
+        font-size: .9rem;
+        line-height: 1.7;
+      }
+      footer .big { color: var(--gold-light); font-weight: 800; font-size: 1rem; }
+    </style>
+  </head>
+  <body>
+    <canvas id="snow" aria-hidden="true"></canvas>
+    <canvas id="confetti" aria-hidden="true"></canvas>
+
+    <div class="wrap">
+      <header>
+        <p class="kicker">Secret Santa</p>
+        <h1>Գաղտնի Սանտա</h1>
+        <p class="greeting">
+          Շնորհավոր Ամանոր և Սուրբ Ծնունդ։ Քեզ մի գաղտնիք է սպասում՝
+          ինչ-որ մեկի համար դու ես այս տարվա գաղտնի Սանտան։
+          Ջնջիր ոսկեգույն շերտը և իմացիր՝ ում ես ուրախացնելու։
+        </p>
+        <div class="divider" aria-hidden="true">
+          <span class="line"></span><span class="diamond"></span><span class="line"></span>
+        </div>
+
+        <!-- Festive scene: trees, gifts and Santa's sleigh silhouette -->
+        <svg class="scene" viewBox="0 0 520 120" role="img" aria-label="Տոնածառեր, նվերներ և Սանտայի սահնակը լուսնի տակ">
+          <circle cx="452" cy="26" r="17" fill="#f7ecc8"/>
+          <circle cx="445" cy="21" r="15" fill="#0d2a1b"/>
+          <!-- sleigh with gift sack, pulled by a reindeer -->
+          <g>
+            <path d="M318 44 q4 10 16 10 h30 q10 0 14 -8 l3 -8 h-46 q-10 0 -13 6z" fill="#c63031"/>
+            <path d="M312 56 q34 8 66 0" stroke="#f0d678" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+            <rect x="330" y="24" width="20" height="16" rx="4" fill="#2e7d4f"/>
+            <rect x="338" y="24" width="4" height="16" fill="#f0d678"/>
+            <circle cx="352" cy="22" r="6" fill="#faf4e0"/>
+            <path d="M378 42 q14 -2 22 -10" stroke="#f0d678" stroke-width="2.4" fill="none"/>
+            <g fill="#8a5a2b">
+              <ellipse cx="412" cy="34" rx="13" ry="8"/>
+              <circle cx="424" cy="27" r="6"/>
+              <path d="M404 40 l-3 10 M418 40 l2 10" stroke="#8a5a2b" stroke-width="3.4" stroke-linecap="round"/>
+              <path d="M426 22 l4 -8 M429 23 l8 -5" stroke="#d9c9a3" stroke-width="2.4" stroke-linecap="round"/>
+            </g>
+            <circle cx="428" cy="28" r="2.2" fill="#e0483e"/>
+          </g>
+          <!-- ground -->
+          <path d="M0 108 Q130 96 260 106 T520 104 V120 H0 Z" fill="#eef3e6"/>
+          <!-- trees -->
+          <g>
+            <g transform="translate(38,18)">
+              <polygon points="26,0 6,34 46,34" fill="#2e7d4f"/>
+              <polygon points="26,16 0,56 52,56" fill="#256b41"/>
+              <rect x="22" y="56" width="8" height="12" fill="#6e4a28"/>
+              <circle cx="26" cy="-4" r="4.5" fill="#f0d678"/>
+              <circle cx="16" cy="30" r="3.4" fill="#e0483e"/><circle cx="36" cy="42" r="3.4" fill="#f0d678"/><circle cx="24" cy="48" r="3.4" fill="#7fb6d9"/>
+            </g>
+            <g transform="translate(96,44) scale(.72)">
+              <polygon points="26,0 6,34 46,34" fill="#2e7d4f"/>
+              <polygon points="26,16 0,56 52,56" fill="#256b41"/>
+              <rect x="22" y="56" width="8" height="12" fill="#6e4a28"/>
+              <circle cx="26" cy="-4" r="4.5" fill="#f0d678"/>
+            </g>
+            <g transform="translate(420,40) scale(.8)">
+              <polygon points="26,0 6,34 46,34" fill="#2e7d4f"/>
+              <polygon points="26,16 0,56 52,56" fill="#256b41"/>
+              <rect x="22" y="56" width="8" height="12" fill="#6e4a28"/>
+              <circle cx="26" cy="-4" r="4.5" fill="#f0d678"/>
+              <circle cx="17" cy="34" r="3.4" fill="#f0d678"/><circle cx="35" cy="46" r="3.4" fill="#e0483e"/>
+            </g>
+          </g>
+          <!-- gifts -->
+          <g>
+            <g transform="translate(196,78)">
+              <rect x="0" y="10" width="42" height="30" rx="3" fill="#c63031"/>
+              <rect x="18" y="10" width="6" height="30" fill="#f0d678"/>
+              <rect x="0" y="22" width="42" height="5" fill="#f0d678"/>
+              <path d="M21 10 q-12 -12 -16 -4 q-3 7 8 6 M21 10 q12 -12 16 -4 q3 7 -8 6" stroke="#f0d678" stroke-width="3.4" fill="none"/>
+            </g>
+            <g transform="translate(252,88) scale(.78)">
+              <rect x="0" y="10" width="42" height="30" rx="3" fill="#2e7d4f"/>
+              <rect x="18" y="10" width="6" height="30" fill="#faf4e0"/>
+              <rect x="0" y="22" width="42" height="5" fill="#faf4e0"/>
+              <path d="M21 10 q-12 -12 -16 -4 q-3 7 8 6 M21 10 q12 -12 16 -4 q3 7 -8 6" stroke="#faf4e0" stroke-width="3.4" fill="none"/>
+            </g>
+            <!-- Santa hat on a small tree -->
+            <g transform="translate(310,52)">
+              <polygon points="20,6 4,36 36,36" fill="#2e7d4f"/>
+              <polygon points="20,22 0,50 40,50" fill="#256b41"/>
+              <rect x="16" y="50" width="8" height="10" fill="#6e4a28"/>
+              <path d="M8 8 Q20 -8 34 4 L30 12 Q20 2 12 14 Z" fill="#c63031"/>
+              <rect x="4" y="10" width="30" height="7" rx="3.5" fill="#faf4e0" transform="rotate(-8 19 13)"/>
+              <circle cx="35" cy="3" r="4.6" fill="#faf4e0"/>
+            </g>
+          </g>
+        </svg>
+      </header>
+
+      <!-- Scratch-off -->
+      <section class="scratch-section" aria-labelledby="scratchTitle">
+        <h2 id="scratchTitle">Ջնջիր և իմացիր անունը</h2>
+        <p class="section-sub">Մատով կամ մկնիկով սահիր ոսկեգույն շերտի վրայով՝ ինչպես վիճակախաղի տոմսի վրա։ Տակը թաքնված է այն մարդու անունը, ում համար նվեր ես պատրաստելու։</p>
+
+        <div class="scratch-shell">
+          <div class="scratch-box" id="scratchBox">
+            <div class="scratch-under">
+              <svg width="54" height="54" viewBox="0 0 48 48" aria-hidden="true" style="margin-bottom:8px">
+                <rect x="6" y="18" width="36" height="24" rx="3" fill="#c63031"/>
+                <rect x="21" y="18" width="6" height="24" fill="#d4af37"/>
+                <rect x="6" y="27" width="36" height="5" fill="#d4af37"/>
+                <path d="M24 18 q-11 -13 -15 -5 q-3 7 9 7 M24 18 q11 -13 15 -5 q3 7 -9 7" stroke="#b8860b" stroke-width="3" fill="none"/>
+              </svg>
+              <p class="who-label">Դու նվեր ես պատրաստելու՝</p>
+              <p class="who-name">Արամե</p>
+              <p class="who-note">Պահիր անունը գաղտնի՝ մինչև նվերը հանձնելու օրը։</p>
+            </div>
+            <canvas id="scratchCanvas" aria-label="Ջնջվող շերտ։ Սահիր մատով, որ բացվի անունը։"></canvas>
+          </div>
+          <p class="scratch-status" id="scratchStatus" role="status">Սահիր մատով ոսկեգույն շերտի վրայով…</p>
+          <div class="scratch-actions">
+            <button class="btn ghost" id="resetScratch" type="button" hidden>Ծածկել նորից</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <p class="big">Շնորհավոր Ամանոր և Սուրբ Ծնունդ</p>
+        <p>Թող այս տարի յուրաքանչյուր նվեր բերի ժպիտ։</p>
+      </footer>
+    </div>
+
+    <script>
+      /* ================= Snowfall ================= */
+      (function () {
+        var canvas = document.getElementById('snow');
+        var ctx = canvas.getContext('2d');
+        var W, H, flakes = [];
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function resize() {
+          W = canvas.width = window.innerWidth;
+          H = canvas.height = window.innerHeight;
+        }
+        function makeFlakes(n) {
+          flakes = [];
+          for (var i = 0; i < n; i++) {
+            flakes.push({
+              x: Math.random() * W,
+              y: Math.random() * H,
+              r: 0.8 + Math.random() * 2.4,
+              speed: 0.35 + Math.random() * 0.9,
+              sway: Math.random() * Math.PI * 2,
+              swaySpeed: 0.004 + Math.random() * 0.01,
+              alpha: 0.35 + Math.random() * 0.55
+            });
+          }
+        }
+        function drawStatic() {
+          ctx.clearRect(0, 0, W, H);
+          for (var i = 0; i < flakes.length; i++) {
+            var f = flakes[i];
+            ctx.beginPath();
+            ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,' + f.alpha + ')';
+            ctx.fill();
+          }
+        }
+        function tick() {
+          ctx.clearRect(0, 0, W, H);
+          for (var i = 0; i < flakes.length; i++) {
+            var f = flakes[i];
+            f.y += f.speed;
+            f.sway += f.swaySpeed;
+            f.x += Math.sin(f.sway) * 0.5;
+            if (f.y > H + 4) { f.y = -4; f.x = Math.random() * W; }
+            if (f.x > W + 4) f.x = -4;
+            if (f.x < -4) f.x = W + 4;
+            ctx.beginPath();
+            ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,' + f.alpha + ')';
+            ctx.fill();
+          }
+          requestAnimationFrame(tick);
+        }
+        resize();
+        makeFlakes(Math.min(130, Math.floor(window.innerWidth / 9)));
+        if (reduceMotion) { drawStatic(); }
+        else { requestAnimationFrame(tick); }
+        window.addEventListener('resize', function () {
+          resize(); makeFlakes(Math.min(130, Math.floor(window.innerWidth / 9)));
+          if (reduceMotion) drawStatic();
+        });
+      })();
+
+      /* ================= Scratch-off ================= */
+      (function () {
+        var box = document.getElementById('scratchBox');
+        var canvas = document.getElementById('scratchCanvas');
+        var ctx = canvas.getContext('2d');
+        var status = document.getElementById('scratchStatus');
+        var resetBtn = document.getElementById('resetScratch');
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var drawing = false, activeId = null, lastX = 0, lastY = 0;
+        var revealed = false, started = false, lastCheck = 0;
+        var BRUSH = 56; /* scratch stamp diameter, CSS px */
+
+        function sizeCanvas() {
+          var rect = box.getBoundingClientRect();
+          var dpr = window.devicePixelRatio || 1;
+          canvas.width = Math.round(rect.width * dpr);
+          canvas.height = Math.round(rect.height * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          return { w: rect.width, h: rect.height };
+        }
+
+        function paintCover() {
+          var dim = sizeCanvas();
+          var w = dim.w, h = dim.h;
+
+          ctx.globalCompositeOperation = 'source-over';
+          var g = ctx.createLinearGradient(0, 0, w, h);
+          g.addColorStop(0, '#e9c860');
+          g.addColorStop(0.45, '#d4af37');
+          g.addColorStop(0.55, '#f0d678');
+          g.addColorStop(1, '#b8912a');
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, w, h);
+
+          // sparkle pattern
+          ctx.fillStyle = 'rgba(255,255,255,0.35)';
+          var i, x, y;
+          for (i = 0; i < 90; i++) {
+            x = Math.random() * w; y = Math.random() * h;
+            ctx.beginPath(); ctx.arc(x, y, Math.random() * 1.8 + 0.6, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.strokeStyle = 'rgba(120,86,10,0.5)';
+          ctx.lineWidth = 1;
+          for (i = 0; i < 26; i++) {
+            x = Math.random() * w; y = Math.random() * h;
+            ctx.beginPath();
+            ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y);
+            ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5);
+            ctx.stroke();
+          }
+
+          // inner border
+          ctx.strokeStyle = 'rgba(90,64,6,0.55)';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(10, 10, w - 20, h - 20);
+
+          // cover text
+          ctx.fillStyle = '#4a3608';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = '800 ' + Math.max(20, w * 0.062) + 'px "Noto Sans Armenian", sans-serif';
+          ctx.fillText('ՋՆՋԻՐ ԱՅՍՏԵՂ', w / 2, h / 2 - 16);
+          ctx.font = '600 ' + Math.max(13, w * 0.036) + 'px "Noto Sans Armenian", sans-serif';
+          ctx.fillStyle = 'rgba(74,54,8,0.85)';
+          ctx.fillText('տակը քո գաղտնի անունն է', w / 2, h / 2 + 22);
+
+          ctx.globalCompositeOperation = 'destination-out';
+        }
+
+        function pos(e) {
+          var rect = canvas.getBoundingClientRect();
+          return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+        function stamp(x, y) {
+          ctx.beginPath();
+          ctx.arc(x, y, BRUSH / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        /* Interpolate stamps along the stroke so fast swipes leave no gaps. */
+        function scratchTo(x, y) {
+          var dx = x - lastX, dy = y - lastY;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          var steps = Math.max(1, Math.ceil(dist / (BRUSH / 3)));
+          for (var i = 1; i <= steps; i++) {
+            stamp(lastX + (dx * i) / steps, lastY + (dy * i) / steps);
+          }
+          lastX = x; lastY = y;
+        }
+
+        /* Measure cleared area on a tiny thumbnail — cheap enough to run often. */
+        var thumb = document.createElement('canvas');
+        thumb.width = 48; thumb.height = 36;
+        var tctx = thumb.getContext('2d', { willReadFrequently: true });
+        function clearedPercent() {
+          try {
+            tctx.clearRect(0, 0, 48, 36);
+            tctx.drawImage(canvas, 0, 0, 48, 36);
+            var data = tctx.getImageData(0, 0, 48, 36).data;
+            var total = 0, clear = 0;
+            for (var i = 3; i < data.length; i += 4) {
+              total++;
+              if (data[i] < 128) clear++;
+            }
+            return total ? (clear / total) * 100 : 0;
+          } catch (err) { return 0; }
+        }
+        function maybeReveal() {
+          if (revealed) return;
+          if (clearedPercent() >= 40) {
+            revealed = true;
+            drawing = false;
+            activeId = null;
+            canvas.classList.add('gone');
+            status.textContent = 'Բացվեց։ Քո գաղտնի անունն է՝ Արամե։';
+            resetBtn.hidden = false;
+            launchConfetti();
+          }
+        }
+
+        canvas.addEventListener('pointerdown', function (e) {
+          if (revealed) return;
+          drawing = true;
+          started = true;
+          activeId = e.pointerId;
+          var p = pos(e);
+          lastX = p.x; lastY = p.y;
+          stamp(p.x, p.y);
+          try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+          e.preventDefault();
+        });
+        canvas.addEventListener('pointermove', function (e) {
+          if (!drawing || revealed || e.pointerId !== activeId) return;
+          var events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+          for (var i = 0; i < events.length; i++) {
+            var p = pos(events[i]);
+            scratchTo(p.x, p.y);
+          }
+          var now = Date.now();
+          if (now - lastCheck > 150) { lastCheck = now; maybeReveal(); }
+          e.preventDefault();
+        });
+        function stop() {
+          if (!drawing) return;
+          drawing = false;
+          activeId = null;
+          maybeReveal();
+        }
+        canvas.addEventListener('pointerup', stop);
+        canvas.addEventListener('pointercancel', stop);
+        canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+        resetBtn.addEventListener('click', function () {
+          revealed = false;
+          started = false;
+          canvas.classList.remove('gone');
+          paintCover();
+          status.textContent = 'Սահիր մատով ոսկեգույն շերտի վրայով…';
+          resetBtn.hidden = true;
+        });
+
+        paintCover();
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(function () {
+            if (!started && !revealed) paintCover();
+          });
+        }
+
+        /* On resize (e.g. the phone URL bar showing/hiding) keep the scratched
+           progress instead of repainting a fresh cover over it. */
+        var resizeTimer = null;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function () {
+            if (revealed) return;
+            if (!started) { paintCover(); return; }
+            var tmp = document.createElement('canvas');
+            tmp.width = canvas.width; tmp.height = canvas.height;
+            tmp.getContext('2d').drawImage(canvas, 0, 0);
+            var dim = sizeCanvas();
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.drawImage(tmp, 0, 0, tmp.width, tmp.height, 0, 0, dim.w, dim.h);
+            ctx.globalCompositeOperation = 'destination-out';
+          }, 180);
+        });
+
+        /* ================= Confetti on reveal ================= */
+        var confettiCanvas = document.getElementById('confetti');
+        var cctx = confettiCanvas.getContext('2d');
+        var confettiRunning = false;
+        function launchConfetti() {
+          if (reduceMotion || confettiRunning) return;
+          confettiRunning = true;
+          confettiCanvas.width = window.innerWidth;
+          confettiCanvas.height = window.innerHeight;
+          var colors = ['#d4af37', '#f0d678', '#c63031', '#e0483e', '#2e7d4f', '#faf4e0', '#7fb6d9'];
+          var rect = box.getBoundingClientRect();
+          var cx = rect.left + rect.width / 2;
+          var cy = rect.top + rect.height / 2;
+          var pieces = [];
+          var i, p;
+          for (i = 0; i < 170; i++) {
+            pieces.push({
+              x: cx + (Math.random() - 0.5) * rect.width * 0.7,
+              y: cy + (Math.random() - 0.5) * 24,
+              w: 6 + Math.random() * 7,
+              h: 9 + Math.random() * 10,
+              vx: (Math.random() - 0.5) * 10,
+              vy: -(7 + Math.random() * 9),
+              rot: Math.random() * Math.PI * 2,
+              vr: (Math.random() - 0.5) * 0.35,
+              sway: Math.random() * Math.PI * 2,
+              color: colors[i % colors.length],
+              circle: Math.random() < 0.3
+            });
+          }
+          var start = null;
+          function frame(ts) {
+            if (!start) start = ts;
+            var t = ts - start;
+            cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            var alive = false;
+            for (i = 0; i < pieces.length; i++) {
+              p = pieces[i];
+              p.vy += 0.24;            /* gravity */
+              p.vx *= 0.985;           /* air drag */
+              p.vy *= 0.992;
+              p.sway += 0.06;
+              p.x += p.vx + Math.sin(p.sway) * 0.7;
+              p.y += p.vy;
+              p.rot += p.vr;
+              if (p.y < confettiCanvas.height + 30 && t < 4500) alive = true;
+              var alpha = t > 3400 ? Math.max(0, 1 - (t - 3400) / 1100) : 1;
+              cctx.save();
+              cctx.translate(p.x, p.y);
+              cctx.rotate(p.rot);
+              cctx.globalAlpha = alpha;
+              cctx.fillStyle = p.color;
+              if (p.circle) {
+                cctx.beginPath();
+                cctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+                cctx.fill();
+              } else {
+                var squash = 0.35 + 0.65 * Math.abs(Math.sin(p.sway * 1.4));
+                cctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * squash);
+              }
+              cctx.restore();
+            }
+            if (alive) { requestAnimationFrame(frame); }
+            else {
+              cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+              confettiRunning = false;
+            }
+          }
+          requestAnimationFrame(frame);
+        }
+      })();
+    </script>
+  </body>
+</html>
